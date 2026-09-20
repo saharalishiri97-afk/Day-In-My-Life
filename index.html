@@ -327,6 +327,146 @@
     cursor:pointer;
   }
   .reset-btn:hover{ border-color:var(--mauve); color:var(--mauve); }
+
+  .history-toggle{
+    display:flex;
+    justify-content:center;
+    margin-top:10px;
+  }
+  .history-card{
+    background:var(--card);
+    border:1px solid var(--divider);
+    border-radius:16px;
+    padding:16px 14px;
+    margin:14px 0;
+    box-shadow:var(--shadow);
+    display:none;
+  }
+  .history-card.open{ display:block; }
+  .streak-row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .streak-num{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:28px;
+    color:var(--ink);
+  }
+  .streak-label{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .heatmap-grid{
+    display:grid;
+    grid-template-columns:repeat(7, 1fr);
+    gap:5px;
+  }
+  .heatmap-dow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    color:var(--muted);
+    text-align:center;
+    padding-bottom:2px;
+  }
+  .heatmap-cell{
+    aspect-ratio:1;
+    border-radius:5px;
+    background:var(--divider);
+    position:relative;
+  }
+  .heatmap-cell[data-level="1"]{ background:var(--gold-soft); }
+  .heatmap-cell[data-level="2"]{ background:var(--gold); }
+  .heatmap-cell[data-level="3"]{ background:var(--mauve); }
+  .heatmap-cell.today{ box-shadow:0 0 0 1.5px var(--ink) inset; }
+  .heatmap-legend{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:4px;
+    margin-top:10px;
+    font-size:10px;
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .heatmap-legend .heatmap-cell{ width:11px; height:11px; aspect-ratio:unset; }
+
+  .nutrient-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+  }
+  .nutrient-table th{
+    font-weight:500;
+    color:var(--muted);
+    padding:4px 3px;
+    text-align:center;
+  }
+  .nutrient-table td{
+    padding:5px 3px;
+    text-align:center;
+    color:var(--ink);
+    border-top:1px solid var(--divider);
+  }
+  .nutrient-row-label{
+    text-align:left !important;
+    color:var(--muted);
+    font-family:'Inter', sans-serif;
+    font-size:11.5px;
+    font-weight:500;
+  }
+  .nutrient-avg{
+    font-weight:600;
+    color:var(--mauve);
+    border-left:1px solid var(--divider);
+  }
+
+  .log-date-form{
+    margin-top:4px;
+  }
+  .log-date-input{
+    width:100%;
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--bg);
+    border:1px solid var(--divider);
+    border-radius:10px;
+    padding:9px 10px;
+    margin-bottom:10px;
+  }
+  .log-date-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .log-date-field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .log-date-field span{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:500;
+  }
+  .log-date-field input{
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--bg);
+    border:1px solid var(--divider);
+    border-radius:10px;
+    padding:8px 10px;
+    width:100%;
+  }
+  .log-date-field input:focus, .log-date-input:focus{
+    outline:none;
+    border-color:var(--gold);
+  }
 </style>
 </head>
 <body>
@@ -342,6 +482,55 @@
 
   <div id="list"></div>
 
+  <div class="history-toggle">
+    <button class="reset-btn" id="historyToggleBtn">View streak &amp; history</button>
+  </div>
+  <div class="history-card" id="historyCard">
+    <div class="streak-row">
+      <span class="streak-num" id="streakNum">0</span>
+      <span class="streak-label">day streak</span>
+    </div>
+    <div class="heatmap-grid" id="heatmapGrid"></div>
+    <div class="heatmap-legend">
+      less
+      <div class="heatmap-cell" data-level="0"></div>
+      <div class="heatmap-cell" data-level="1"></div>
+      <div class="heatmap-cell" data-level="2"></div>
+      <div class="heatmap-cell" data-level="3"></div>
+      more
+    </div>
+    <div class="section-label" style="padding:14px 0 6px;">Last 7 days</div>
+    <div id="nutritionTrend"></div>
+
+    <div class="section-label" style="padding:14px 0 6px;">Log for a date</div>
+    <div class="log-date-form">
+      <input type="date" id="logDateInput" class="log-date-input">
+      <div class="log-date-grid">
+        <label class="log-date-field">
+          <span>Calories</span>
+          <input type="number" min="0" inputmode="decimal" id="logCalories" placeholder="0">
+        </label>
+        <label class="log-date-field">
+          <span>Protein (g)</span>
+          <input type="number" min="0" inputmode="decimal" id="logProtein" placeholder="0">
+        </label>
+        <label class="log-date-field">
+          <span>Fiber (g)</span>
+          <input type="number" min="0" inputmode="decimal" id="logFiber" placeholder="0">
+        </label>
+        <label class="log-date-field">
+          <span>Water (ml)</span>
+          <input type="number" min="0" inputmode="decimal" id="logWater" placeholder="0">
+        </label>
+        <label class="log-date-field">
+          <span>Steps</span>
+          <input type="number" min="0" inputmode="decimal" id="logSteps" placeholder="0">
+        </label>
+      </div>
+      <button class="reset-btn" id="logDateSaveBtn" style="width:100%;margin-top:8px;">Save entry</button>
+    </div>
+  </div>
+
   <div class="reset-row">
     <button class="reset-btn" id="resetBtn">Reset today</button>
     <button class="reset-btn" id="resetWeekBtn">Reset week</button>
@@ -354,14 +543,27 @@
 </div>
 
 <script>
-const DATA = {"Monday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"7:15–8:00","items":[{"text":"Commute to work","icon":""}]},{"time":"8:00","items":[{"text":"Water","icon":"water"}]},{"time":"10:00","items":[{"text":"Water","icon":"water"}]},{"time":"12:00","items":[{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"2:00","items":[{"text":"Water","icon":"water"}]},{"time":"~3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"4:15–5:00","items":[{"text":"Commute to Pilates","icon":""}]},{"time":"5:00","items":[{"text":"Water","icon":"water"}]},{"time":"5:00–6:00","items":[{"text":"Pilates","icon":""},{"text":"Water, sip throughout","icon":"water"}]},{"time":"6:00","items":[{"text":"Water","icon":"water"}]},{"time":"6:00–6:30","items":[{"text":"Commute home","icon":""}]},{"time":"6:30–7:30","items":[{"text":"Shower / change","icon":""},{"text":"Cook dinner","icon":""},{"text":"Body: Retinol body lotion","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"7:30–9:00","items":[{"text":"Eat dinner","icon":""},{"text":"Water","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Retinol","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}],"Tuesday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Chemical exfoliant","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"7:15–8:00","items":[{"text":"Commute to work","icon":""}]},{"time":"8:00–8:30","items":[{"text":"Work, settle in","icon":""},{"text":"Water","icon":"water"}]},{"time":"10:00","items":[{"text":"Water","icon":"water"}]},{"time":"12:00","items":[{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"2:00","items":[{"text":"Water","icon":"water"}]},{"time":"~3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"6:00–6:45","items":[{"text":"Commute home","icon":""}]},{"time":"6:45–7:00","items":[{"text":"Get ready for gym","icon":""},{"text":"Water","icon":"water"}]},{"time":"7:00–7:15","items":[{"text":"Commute to gym","icon":""}]},{"time":"7:15–8:15","items":[{"text":"Gym","icon":""},{"text":"Water, sip throughout","icon":"water"}]},{"time":"8:15","items":[{"text":"Water","icon":"water"}]},{"time":"8:15–8:30","items":[{"text":"Commute home","icon":""}]},{"time":"8:30–9:30","items":[{"text":"Shower / change","icon":""},{"text":"Cook dinner","icon":""},{"text":"Body: Chemical exfoliant","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"9:30–11:00","items":[{"text":"Eat dinner","icon":""},{"text":"Water, last full glass","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Retinol","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}],"Wednesday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"7:15–8:00","items":[{"text":"Commute to work","icon":""}]},{"time":"8:00","items":[{"text":"Water","icon":"water"}]},{"time":"10:00","items":[{"text":"Water","icon":"water"}]},{"time":"12:00","items":[{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"2:00","items":[{"text":"Water","icon":"water"}]},{"time":"~3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"6:00–6:45","items":[{"text":"Commute home","icon":""}]},{"time":"6:45–7:00","items":[{"text":"Get ready for gym","icon":""},{"text":"Water","icon":"water"}]},{"time":"7:00–7:15","items":[{"text":"Commute to gym","icon":""}]},{"time":"7:15–8:15","items":[{"text":"Gym","icon":""},{"text":"Water, sip throughout","icon":"water"}]},{"time":"8:15","items":[{"text":"Water","icon":"water"}]},{"time":"8:15–8:30","items":[{"text":"Commute home","icon":""}]},{"time":"8:30–9:30","items":[{"text":"Shower / change","icon":""},{"text":"Cook dinner","icon":""},{"text":"Body: Retinol body lotion","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"9:30–11:00","items":[{"text":"Eat dinner","icon":""},{"text":"Water, last full glass","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Chemical exfoliant","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}],"Thursday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"7:15–8:00","items":[{"text":"Commute to work","icon":""}]},{"time":"8:00–8:30","items":[{"text":"Work, settle in","icon":""},{"text":"Water","icon":"water"}]},{"time":"10:00","items":[{"text":"Water","icon":"water"}]},{"time":"12:00","items":[{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"2:00","items":[{"text":"Water","icon":"water"}]},{"time":"~2:45–3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"4:15–5:00","items":[{"text":"Commute to Pilates","icon":""}]},{"time":"5:00","items":[{"text":"Water","icon":"water"}]},{"time":"5:00–6:00","items":[{"text":"Pilates","icon":""},{"text":"Water, sip throughout","icon":"water"}]},{"time":"6:00","items":[{"text":"Water","icon":"water"}]},{"time":"6:00–6:30","items":[{"text":"Commute home","icon":""}]},{"time":"6:30–7:30","items":[{"text":"Shower / change","icon":""},{"text":"Cook dinner","icon":""},{"text":"Body: Rest night, moisturizer only","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"7:30–9:00","items":[{"text":"Eat dinner","icon":""},{"text":"Water","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"9:00–11:00","items":[{"text":"Free time","icon":""},{"text":"Water, last full glass","icon":"water"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Retinol","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}],"Friday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Chemical exfoliant","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"7:15–8:00","items":[{"text":"Commute to work","icon":""}]},{"time":"8:00","items":[{"text":"Water","icon":"water"}]},{"time":"10:00","items":[{"text":"Water","icon":"water"}]},{"time":"12:00","items":[{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"2:00","items":[{"text":"Water","icon":"water"}]},{"time":"~3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"6:00–6:45","items":[{"text":"Commute home","icon":""}]},{"time":"6:45–7:00","items":[{"text":"Get ready for gym","icon":""},{"text":"Water","icon":"water"}]},{"time":"7:00–7:15","items":[{"text":"Commute to gym","icon":""}]},{"time":"7:15–8:15","items":[{"text":"Gym","icon":""},{"text":"Water, sip throughout","icon":"water"}]},{"time":"8:15","items":[{"text":"Water","icon":"water"}]},{"time":"8:15–8:30","items":[{"text":"Commute home","icon":""}]},{"time":"8:30–9:30","items":[{"text":"Shower / change","icon":""},{"text":"Cook dinner","icon":""},{"text":"Body: Retinol body lotion","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"9:30–11:00","items":[{"text":"Eat dinner","icon":""},{"text":"Water, last full glass","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Retinol","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}],"Saturday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"9:30–9:45","items":[{"text":"Get ready for gym","icon":""},{"text":"Water","icon":"water"}]},{"time":"9:45–10:00","items":[{"text":"Commute to gym","icon":""}]},{"time":"10:00–11:00","items":[{"text":"Gym","icon":""},{"text":"Water, sip throughout","icon":"water"}]},{"time":"11:00","items":[{"text":"Water","icon":"water"}]},{"time":"11:00–11:15","items":[{"text":"Commute home","icon":""}]},{"time":"12:00","items":[{"text":"Lunch","icon":""},{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"7:00–8:00","items":[{"text":"Dinner","icon":""},{"text":"Water","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"8:00–8:30","items":[{"text":"Shower","icon":""},{"text":"Body: Chemical exfoliant","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Chemical exfoliant","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}],"Sunday":[{"time":"6:00","items":[{"text":"Wake up","icon":""},{"text":"Water","icon":"water"}]},{"time":"6:00–7:00","items":[{"text":"Coffee","icon":"coffee"},{"text":"B-Complex","icon":"pill"},{"text":"Birth control pill","icon":"pill"},{"text":"Water","icon":"water"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"},{"text":"Vitamin C","icon":"skin"},{"text":"Hydration (moisturizer)","icon":"skin"},{"text":"Check today's to-do list + calendar","icon":"plan"}]},{"time":"12:00","items":[{"text":"Lunch","icon":""},{"text":"Water","icon":"water"},{"text":"Citracal","icon":"pill"}]},{"time":"3:00","items":[{"text":"Tea","icon":"coffee"},{"text":"Water","icon":"water"}]},{"time":"7:00–8:00","items":[{"text":"Dinner","icon":""},{"text":"Water","icon":"water"},{"text":"Perfectil Hair","icon":"pill"},{"text":"Fish oil","icon":"pill"}]},{"time":"8:00–8:30","items":[{"text":"Shower","icon":""},{"text":"Body: Rest night, moisturizer only","icon":"body"},{"text":"Floss","icon":"oral"},{"text":"Water floss","icon":"oral"},{"text":"Tongue scraper","icon":"oral"},{"text":"Brush teeth","icon":"oral"},{"text":"Mouthwash","icon":"oral"}]},{"time":"~9:30","items":[{"text":"Magnesium","icon":"pill"},{"text":"Creatine, with water (skip if already had it in a shake or yogurt)","icon":"pill"}]},{"time":"~10:00","items":[{"text":"Check tomorrow's to-do list + calendar","icon":"plan"}]},{"time":"~10:30","items":[{"text":"Retinol","icon":"skin"}]},{"time":"10:30–11:00","items":[{"text":"Reading","icon":"read"}]},{"time":"End of day","nutrition":true,"items":[]},{"time":"11:00","items":[{"text":"Bed","icon":""}]}]};
+const DATA = {"Monday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:15", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "6:15–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00–8:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "4:15–5:00", "items": [{"text": "Commute to Pilates", "icon": ""}]}, {"time": "5:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "5:00–6:00", "items": [{"text": "Pilates", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "6:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "6:00–6:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:30–8:30", "items": [{"text": "Cook dinner", "icon": ""}, {"text": "Laundry", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Body: Retinol body lotion", "icon": "body"}, {"text": "Retinol", "icon": "skin"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "9:30–10:30", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}]}, {"time": "10:30–11:00", "items": [{"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "11:00–11:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:30", "items": [{"text": "Bed", "icon": ""}]}], "Tuesday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:15", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "6:15–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}, {"text": "Chemical exfoliant", "icon": "skin"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00–8:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:45", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:45–7:00", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–7:15", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "7:15–8:15", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "8:15", "items": [{"text": "Water", "icon": "water"}]}, {"time": "8:15–8:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Cook dinner", "icon": ""}, {"text": "Shower / change", "icon": ""}, {"text": "Body: Chemical exfoliant", "icon": "body"}, {"text": "Retinol", "icon": "skin"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "9:30–10:30", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}]}, {"time": "10:30–11:00", "items": [{"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "11:00–11:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:30", "items": [{"text": "Bed", "icon": ""}]}], "Wednesday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:15", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "6:15–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00–8:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:45", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:45–7:00", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–7:15", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "7:15–8:15", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "8:15", "items": [{"text": "Water", "icon": "water"}]}, {"time": "8:15–8:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Cook dinner", "icon": ""}, {"text": "Shower / change", "icon": ""}, {"text": "Body: Retinol body lotion", "icon": "body"}, {"text": "Chemical exfoliant", "icon": "skin"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "9:30–10:30", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}]}, {"time": "10:30–11:00", "items": [{"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "11:00–11:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:30", "items": [{"text": "Bed", "icon": ""}]}], "Thursday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:15", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "6:15–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00–8:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~2:45–3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "4:15–5:00", "items": [{"text": "Commute to Pilates", "icon": ""}]}, {"time": "5:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "5:00–6:00", "items": [{"text": "Pilates", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "6:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "6:00–6:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:30–8:30", "items": [{"text": "Cook dinner", "icon": ""}, {"text": "Laundry", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Body: Rest night, moisturizer only", "icon": "body"}, {"text": "Retinol", "icon": "skin"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "9:30–10:30", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}]}, {"time": "10:30–11:00", "items": [{"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "11:00–11:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:30", "items": [{"text": "Bed", "icon": ""}]}], "Friday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:15", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "6:15–6:30", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}]}, {"time": "6:30–6:45", "items": [{"text": "Get ready for gym", "icon": ""}]}, {"time": "6:45–7:00", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "7:00–8:00", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "8:00–8:15", "items": [{"text": "Commute home", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "8:15–9:15", "items": [{"text": "Shower", "icon": ""}, {"text": "Chemical exfoliant", "icon": "skin"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Water", "icon": "water"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "9:15–10:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "10:00–10:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "5:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "6:00–6:45", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:30–8:30", "items": [{"text": "Cook dinner", "icon": ""}, {"text": "Laundry", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}]}, {"time": "9:30–10:00", "items": [{"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "10:00–11:00", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Body: Retinol body lotion", "icon": "body"}, {"text": "Retinol", "icon": "skin"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "11:00–11:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:30", "items": [{"text": "Bed", "icon": ""}]}], "Saturday": [{"time": "7:30", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:30–7:45", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "7:45–8:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}]}, {"time": "8:00–8:15", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "8:15–8:30", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "9:30–9:45", "items": [{"text": "Commute home", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "9:45–10:45", "items": [{"text": "Shower", "icon": ""}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Water", "icon": "water"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "12:00", "items": [{"text": "Lunch", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "5:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "7:00–8:00", "items": [{"text": "Dinner", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "8:00–8:30", "items": [{"text": "Shower", "icon": ""}, {"text": "Body: Chemical exfoliant", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}, {"text": "Water", "icon": "water"}]}, {"time": "~10:30", "items": [{"text": "Chemical exfoliant", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Sunday": [{"time": "7:30", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:30–7:45", "items": [{"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "7:45–8:30", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Probiotic", "icon": "pill"}, {"text": "Water", "icon": "water"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Body lotion", "icon": "body"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "9:30", "items": [{"text": "Water", "icon": "water"}]}, {"time": "11:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Lunch", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "1:30", "items": [{"text": "Water", "icon": "water"}]}, {"time": "3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "4:30", "items": [{"text": "Water", "icon": "water"}]}, {"time": "6:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "7:00–8:00", "items": [{"text": "Dinner", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Fish oil", "icon": "pill"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "8:00–8:30", "items": [{"text": "Shower", "icon": ""}, {"text": "Body: Rest night, moisturizer only", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}, {"text": "Water", "icon": "water"}]}, {"time": "~10:30", "items": [{"text": "Retinol", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}, {"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}], "Cleaning": [{"time": "Kitchen", "items": [{"text": "Wipe counters", "icon": ""}, {"text": "Wipe stovetop", "icon": ""}, {"text": "Load / unload dishwasher", "icon": ""}, {"text": "Take out trash", "icon": ""}, {"text": "Sweep / mop floor", "icon": ""}]}, {"time": "Bathroom", "items": [{"text": "Clean toilet", "icon": ""}, {"text": "Wipe sink & counter", "icon": ""}, {"text": "Clean mirror", "icon": ""}, {"text": "Sweep / mop floor", "icon": ""}, {"text": "Restock toiletries", "icon": ""}]}, {"time": "Bedroom", "items": [{"text": "Change sheets", "icon": ""}, {"text": "Dust surfaces", "icon": ""}, {"text": "Vacuum floor", "icon": ""}, {"text": "Tidy closet", "icon": ""}]}, {"time": "Living Room", "items": [{"text": "Vacuum / sweep", "icon": ""}, {"text": "Dust surfaces", "icon": ""}, {"text": "Tidy clutter", "icon": ""}, {"text": "Wipe down TV / electronics", "icon": ""}]}, {"time": "General", "items": [{"text": "Laundry", "icon": ""}, {"text": "Take out recycling", "icon": ""}, {"text": "Wipe light switches & door handles", "icon": ""}, {"text": "Clean makeup brushes", "icon": ""}, {"text": "Clean hair brushes", "icon": ""}]}]};
 
-const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-const SHORT = {Monday:"Mon",Tuesday:"Tue",Wednesday:"Wed",Thursday:"Thu",Friday:"Fri",Saturday:"Sat",Sunday:"Sun"};
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday","Cleaning"];
+const SHORT = {Monday:"Mon",Tuesday:"Tue",Wednesday:"Wed",Thursday:"Thu",Friday:"Fri",Saturday:"Sat",Sunday:"Sun",Cleaning:"Clean"};
 
 let checkedState = {}; // { "Monday:3:1": true }
 let nutritionState = {}; // { "Monday": {calories, protein, fiber, water} }
+let historyState = {}; // { "2026-09-20": {weekday:"Monday", done:8, total:11} }
 let currentDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+
+function actualWeekday(){
+  return DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+}
+
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 const tabsEl = document.getElementById('tabs');
 const listEl = document.getElementById('list');
@@ -565,6 +767,10 @@ function loadState(){
     const raw2 = localStorage.getItem('nutrition-state');
     if(raw2) nutritionState = JSON.parse(raw2);
   }catch(e){ nutritionState = {}; }
+  try{
+    const raw3 = localStorage.getItem('history-state');
+    if(raw3) historyState = JSON.parse(raw3);
+  }catch(e){ historyState = {}; }
 
   const diag = document.getElementById('storageDiag');
   if(diag){
@@ -629,11 +835,225 @@ function showSaveWarning(){
 
 function saveState(){
   saveWithRetry('checklist-state', JSON.stringify(checkedState));
+  snapshotHistory();
 }
 
 function saveNutrition(){
   saveWithRetry('nutrition-state', JSON.stringify(nutritionState));
+  snapshotNutritionHistory();
 }
+
+// Only logs history when the tab being edited is TODAY's actual real-world
+// weekday (not when filling in a different day's card to plan ahead), and
+// never for the Cleaning tab, which has no fixed day mapping.
+function snapshotHistory(){
+  if(currentDay === 'Cleaning') return;
+  if(currentDay !== actualWeekday()) return;
+  const {total, done} = countTotals(currentDay);
+  const existing = historyState[todayISO()] || {};
+  historyState[todayISO()] = Object.assign({}, existing, {weekday: currentDay, done, total});
+  saveWithRetry('history-state', JSON.stringify(historyState));
+  if(document.getElementById('historyCard').classList.contains('open')) renderHistory();
+}
+
+function snapshotNutritionHistory(){
+  if(currentDay === 'Cleaning') return;
+  if(currentDay !== actualWeekday()) return;
+  const dayData = nutritionState[currentDay] || {};
+  const existing = historyState[todayISO()] || {};
+  historyState[todayISO()] = Object.assign({}, existing, {
+    weekday: currentDay,
+    calories: dayData.calories || '',
+    protein: dayData.protein || '',
+    fiber: dayData.fiber || '',
+    water: dayData.water || '',
+    steps: dayData.steps || ''
+  });
+  saveWithRetry('history-state', JSON.stringify(historyState));
+  if(document.getElementById('historyCard').classList.contains('open')) renderHistory();
+}
+
+function dayLevel(entry){
+  if(!entry || !entry.total) return 0;
+  const pct = entry.done / entry.total;
+  if(pct <= 0) return 0;
+  if(pct < 0.5) return 1;
+  if(pct < 0.85) return 2;
+  return 3;
+}
+
+function renderHistory(){
+  const grid = document.getElementById('heatmapGrid');
+  grid.innerHTML = '';
+
+  // Build the last 35 days (5 full weeks), oldest first, aligned Mon-Sun.
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayDow = today.getDay() === 0 ? 6 : today.getDay() - 1; // 0=Mon
+  const daysBack = todayDow + 7 * 4; // pad to full weeks ending today
+  const start = new Date(today);
+  start.setDate(start.getDate() - daysBack);
+
+  const dowLabels = ['M','T','W','T','F','S','S'];
+  dowLabels.forEach(l => {
+    const el = document.createElement('div');
+    el.className = 'heatmap-dow';
+    el.textContent = l;
+    grid.appendChild(el);
+  });
+
+  const cursor = new Date(start);
+  const last7 = [];
+  while(cursor <= today){
+    const y = cursor.getFullYear();
+    const m = String(cursor.getMonth()+1).padStart(2,'0');
+    const d = String(cursor.getDate()).padStart(2,'0');
+    const iso = `${y}-${m}-${d}`;
+    const entry = historyState[iso];
+    const cell = document.createElement('div');
+    cell.className = 'heatmap-cell';
+    cell.dataset.level = dayLevel(entry);
+    if(iso === todayISO()) cell.classList.add('today');
+    const titleBits = [];
+    if(entry && entry.total) titleBits.push(`${entry.done}/${entry.total} done`);
+    if(entry && entry.calories) titleBits.push(`${entry.calories} kcal`);
+    if(entry && entry.water) titleBits.push(`${entry.water} ml water`);
+    cell.title = titleBits.length ? `${iso}: ${titleBits.join(', ')}` : iso;
+    grid.appendChild(cell);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  document.getElementById('streakNum').textContent = computeStreak();
+  renderNutritionTrend();
+}
+
+function renderNutritionTrend(){
+  const container = document.getElementById('nutritionTrend');
+  container.innerHTML = '';
+
+  const metrics = [
+    {key:'calories', label:'Cal', unit:'kcal'},
+    {key:'protein', label:'Protein', unit:'g'},
+    {key:'fiber', label:'Fiber', unit:'g'},
+    {key:'water', label:'Water', unit:'ml'},
+    {key:'steps', label:'Steps', unit:''}
+  ];
+
+  // last 7 days including today, oldest first
+  const days = [];
+  const cursor = new Date();
+  cursor.setHours(0,0,0,0);
+  cursor.setDate(cursor.getDate() - 6);
+  for(let i = 0; i < 7; i++){
+    const y = cursor.getFullYear();
+    const m = String(cursor.getMonth()+1).padStart(2,'0');
+    const d = String(cursor.getDate()).padStart(2,'0');
+    days.push({iso: `${y}-${m}-${d}`, label: cursor.toLocaleDateString(undefined,{weekday:'short'})});
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  const table = document.createElement('table');
+  table.className = 'nutrient-table';
+
+  const headRow = document.createElement('tr');
+  headRow.appendChild(document.createElement('th'));
+  days.forEach(d => {
+    const th = document.createElement('th');
+    th.textContent = d.label;
+    headRow.appendChild(th);
+  });
+  const avgTh = document.createElement('th');
+  avgTh.textContent = 'Avg';
+  headRow.appendChild(avgTh);
+  table.appendChild(headRow);
+
+  metrics.forEach(metric => {
+    const row = document.createElement('tr');
+    const labelCell = document.createElement('td');
+    labelCell.className = 'nutrient-row-label';
+    labelCell.textContent = metric.label;
+    row.appendChild(labelCell);
+
+    let sum = 0, count = 0;
+    days.forEach(d => {
+      const entry = historyState[d.iso];
+      const val = entry ? entry[metric.key] : '';
+      const cell = document.createElement('td');
+      cell.textContent = val || '–';
+      row.appendChild(cell);
+      if(val){ sum += Number(val); count++; }
+    });
+
+    const avgCell = document.createElement('td');
+    avgCell.className = 'nutrient-avg';
+    avgCell.textContent = count ? Math.round(sum / count) : '–';
+    row.appendChild(avgCell);
+
+    table.appendChild(row);
+  });
+
+  container.appendChild(table);
+}
+
+// Consecutive days (counting back from today) where the day's checklist was
+// at least 50% complete.
+function computeStreak(){
+  let streak = 0;
+  const cursor = new Date();
+  cursor.setHours(0,0,0,0);
+  while(true){
+    const y = cursor.getFullYear();
+    const m = String(cursor.getMonth()+1).padStart(2,'0');
+    const d = String(cursor.getDate()).padStart(2,'0');
+    const iso = `${y}-${m}-${d}`;
+    const entry = historyState[iso];
+    if(entry && entry.total && (entry.done / entry.total) >= 0.5){
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+document.getElementById('historyToggleBtn').onclick = () => {
+  const card = document.getElementById('historyCard');
+  card.classList.toggle('open');
+  if(card.classList.contains('open')){
+    renderHistory();
+    const dateInput = document.getElementById('logDateInput');
+    if(!dateInput.value) dateInput.value = todayISO();
+    loadLogDateFields();
+  }
+};
+
+function loadLogDateFields(){
+  const iso = document.getElementById('logDateInput').value;
+  const entry = historyState[iso] || {};
+  document.getElementById('logCalories').value = entry.calories || '';
+  document.getElementById('logProtein').value = entry.protein || '';
+  document.getElementById('logFiber').value = entry.fiber || '';
+  document.getElementById('logWater').value = entry.water || '';
+  document.getElementById('logSteps').value = entry.steps || '';
+}
+
+document.getElementById('logDateInput').onchange = loadLogDateFields;
+
+document.getElementById('logDateSaveBtn').onclick = () => {
+  const iso = document.getElementById('logDateInput').value;
+  if(!iso) return;
+  const existing = historyState[iso] || {};
+  historyState[iso] = Object.assign({}, existing, {
+    calories: document.getElementById('logCalories').value,
+    protein: document.getElementById('logProtein').value,
+    fiber: document.getElementById('logFiber').value,
+    water: document.getElementById('logWater').value,
+    steps: document.getElementById('logSteps').value
+  });
+  saveWithRetry('history-state', JSON.stringify(historyState));
+  renderHistory();
+};
 
 document.getElementById('resetBtn').onclick = () => {
   DATA[currentDay].forEach((b, bi) => {
