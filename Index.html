@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Day in My Life</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Day in My Life">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#faf4f6">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23362e2b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%23d4a94f' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%23a8687a' stroke-width='6' stroke-dasharray='88 176' stroke-linecap='round' transform='rotate(-90 50 50)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #faf4f6;
+    --card: #ffffff;
+    --ink: #362e2b;
+    --muted: #9c8f94;
+    --divider: #efe3e6;
+    --gold: #d4a94f;
+    --gold-soft: #f1ddaf;
+    --mauve: #a8687a;
+    --mauve-soft: #f3e3e8;
+    --shadow: 0 1px 2px rgba(54,46,43,0.04), 0 8px 24px rgba(54,46,43,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:40px;
+  }
+  .wrap{
+    max-width:520px;
+    margin:0 auto;
+    padding:28px 18px 8px;
+  }
+  header{
+    margin-bottom:18px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--mauve);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:34px;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    color:var(--muted);
+    font-size:14px;
+    margin:0;
+  }
+
+  .tabs{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:18px 2px 10px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 14px 7px 8px;
+    border-radius:999px;
+    background:var(--card);
+    border:1px solid var(--divider);
+    cursor:pointer;
+    font-family:'Inter', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    color:var(--muted);
+    transition:all .18s ease;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .tab.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fff;
+  }
+  .ring{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    flex:0 0 22px;
+  }
+
+  .progress-line{
+    height:6px;
+    border-radius:999px;
+    background:var(--divider);
+    overflow:hidden;
+    margin:6px 2px 22px;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--gold), var(--mauve));
+    border-radius:999px;
+    transition:width .35s ease;
+    width:0%;
+  }
+
+  .block{
+    display:flex;
+    gap:14px;
+    margin-bottom:4px;
+  }
+  .time-col{
+    flex:0 0 64px;
+    padding-top:11px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.4;
+  }
+  .rail{
+    flex:0 0 16px;
+    display:flex;
+    justify-content:center;
+    position:relative;
+  }
+  .rail::before{
+    content:"";
+    position:absolute;
+    top:8px;
+    bottom:-4px;
+    width:1.5px;
+    background:var(--divider);
+  }
+  .block:last-child .rail::before{ display:none; }
+  .rail-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--mauve);
+    margin-top:14px;
+    flex:0 0 7px;
+  }
+  .items{
+    flex:1;
+    padding-bottom:18px;
+  }
+
+  .item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:7px 10px;
+    border-radius:12px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    transition:background .15s ease;
+  }
+  .item:hover{ background:var(--mauve-soft); }
+  .item.done .item-text{
+    color:var(--muted);
+    text-decoration:line-through;
+    text-decoration-color:var(--gold);
+    text-decoration-thickness:1.5px;
+  }
+
+  .box{
+    width:21px;
+    height:21px;
+    border-radius:50%;
+    border:1.6px solid #d9cdd1;
+    flex:0 0 21px;
+    margin-top:2px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .16s ease;
+    background:#fff;
+  }
+  .item.done .box{
+    background:var(--gold);
+    border-color:var(--gold);
+  }
+  .box svg{
+    width:11px;
+    height:11px;
+    opacity:0;
+    transform:scale(.5);
+    transition:all .16s ease;
+  }
+  .item.done .box svg{ opacity:1; transform:scale(1); }
+
+  .item-text{
+    font-size:15px;
+    line-height:1.35;
+    padding-top:1px;
+  }
+  .icon-tag{
+    display:inline-block;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    margin-right:7px;
+    vertical-align:middle;
+    position:relative;
+    top:-1px;
+  }
+  .icon-water{ background:#7fb3c9; }
+  .icon-pill{ background:#c98789; }
+  .icon-skin{ background:#c9a15a; }
+  .icon-body{ background:#a8867a; }
+  .icon-coffee{ background:#8a6547; }
+  .icon-read{ background:#8f8ab0; }
+  .icon-plan{ background:#6f9d8f; }
+  .icon-oral{ background:#6a93b0; }
+
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--mauve);
+    padding:9px 10px 2px;
+  }
+
+  .nutrition-card{
+    background:var(--card);
+    border:1px solid var(--divider);
+    border-radius:16px;
+    padding:14px 14px 10px;
+    margin:6px 0 18px;
+    box-shadow:var(--shadow);
+  }
+  .nutrition-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px 14px;
+  }
+  .nutrition-field{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .nutrition-field.full-span{
+    grid-column:1 / -1;
+  }
+  .nutrition-label{
+    font-size:11.5px;
+    color:var(--muted);
+    font-weight:500;
+  }
+  .nutrition-input-wrap{
+    display:flex;
+    align-items:baseline;
+    gap:5px;
+    border-bottom:1.5px solid var(--divider);
+    padding-bottom:4px;
+    transition:border-color .15s ease;
+  }
+  .nutrition-input-wrap:focus-within{
+    border-color:var(--gold);
+  }
+  .nutrition-input-wrap input{
+    border:none;
+    outline:none;
+    background:none;
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    font-weight:500;
+    color:var(--ink);
+    width:100%;
+    min-width:0;
+    padding:0;
+  }
+  .nutrition-input-wrap input::-webkit-outer-spin-button,
+  .nutrition-input-wrap input::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .nutrition-unit{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--muted);
+    flex:0 0 auto;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12.5px;
+    padding:26px 20px 10px;
+    line-height:1.6;
+  }
+  footer a{ color: var(--mauve); }
+
+  .reset-row{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:6px;
+  }
+  .reset-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--muted);
+    background:none;
+    border:1px solid var(--divider);
+    padding:8px 14px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .reset-btn:hover{ border-color:var(--mauve); color:var(--mauve); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow" id="dateLabel">Weekly Routine</p>
+    <h1>Day in My Life</h1>
+    <p class="sub" id="dayCount">Loading…</p>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="list"></div>
+
+  <div class="reset-row">
+    <button class="reset-btn" id="resetBtn">Reset today</button>
+    <button class="reset-btn" id="resetWeekBtn">Reset week</button>
+  </div>
+
+  <footer>
+    A rhythm, not a rulebook — check things off as you go.<br>Progress saves automatically.
+    <div id="storageDiag" style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);"></div>
+  </footer>
+</div>
+
+<script>
+const DATA = {"Monday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "4:15–5:00", "items": [{"text": "Commute to Pilates", "icon": ""}]}, {"time": "5:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "5:00–6:00", "items": [{"text": "Pilates", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "6:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "6:00–6:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:30–7:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Cook dinner", "icon": ""}, {"text": "Body: Retinol body lotion", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "7:30–9:00", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Retinol", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Tuesday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Chemical exfoliant", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00–8:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:45", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:45–7:00", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–7:15", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "7:15–8:15", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "8:15", "items": [{"text": "Water", "icon": "water"}]}, {"time": "8:15–8:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Cook dinner", "icon": ""}, {"text": "Body: Chemical exfoliant", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "9:30–11:00", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Retinol", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Wednesday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:45", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:45–7:00", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–7:15", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "7:15–8:15", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "8:15", "items": [{"text": "Water", "icon": "water"}]}, {"time": "8:15–8:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Cook dinner", "icon": ""}, {"text": "Body: Retinol body lotion", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "9:30–11:00", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Chemical exfoliant", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Thursday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00–8:30", "items": [{"text": "Work, settle in", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~2:45–3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "4:15–5:00", "items": [{"text": "Commute to Pilates", "icon": ""}]}, {"time": "5:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "5:00–6:00", "items": [{"text": "Pilates", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "6:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "6:00–6:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:30–7:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Cook dinner", "icon": ""}, {"text": "Body: Rest night, moisturizer only", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "7:30–9:00", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "9:00–11:00", "items": [{"text": "Free time", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Retinol", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Friday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Chemical exfoliant", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "7:15–8:00", "items": [{"text": "Commute to work", "icon": ""}]}, {"time": "8:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "10:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "12:00", "items": [{"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "2:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "~3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–6:45", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "6:45–7:00", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–7:15", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "7:15–8:15", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "8:15", "items": [{"text": "Water", "icon": "water"}]}, {"time": "8:15–8:30", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "8:30–9:30", "items": [{"text": "Shower / change", "icon": ""}, {"text": "Cook dinner", "icon": ""}, {"text": "Body: Retinol body lotion", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "9:30–11:00", "items": [{"text": "Eat dinner", "icon": ""}, {"text": "Water, last full glass", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Retinol", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Saturday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "9:30–9:45", "items": [{"text": "Get ready for gym", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "9:45–10:00", "items": [{"text": "Commute to gym", "icon": ""}]}, {"time": "10:00–11:00", "items": [{"text": "Gym", "icon": ""}, {"text": "Water, sip throughout", "icon": "water"}]}, {"time": "11:00", "items": [{"text": "Water", "icon": "water"}]}, {"time": "11:00–11:15", "items": [{"text": "Commute home", "icon": ""}]}, {"time": "12:00", "items": [{"text": "Lunch", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–8:00", "items": [{"text": "Dinner", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "8:00–8:30", "items": [{"text": "Shower", "icon": ""}, {"text": "Body: Chemical exfoliant", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Chemical exfoliant", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}], "Sunday": [{"time": "6:00", "items": [{"text": "Wake up", "icon": ""}, {"text": "Water", "icon": "water"}]}, {"time": "6:00–7:00", "items": [{"text": "Coffee", "icon": "coffee"}, {"text": "B-Complex", "icon": "pill"}, {"text": "Birth control pill", "icon": "pill"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}, {"text": "Vitamin C", "icon": "skin"}, {"text": "Hydration (moisturizer)", "icon": "skin"}, {"text": "Check today's to-do list + calendar", "icon": "plan"}]}, {"time": "12:00", "items": [{"text": "Lunch", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Citracal", "icon": "pill"}]}, {"time": "3:00", "items": [{"text": "Tea", "icon": "coffee"}, {"text": "Water", "icon": "water"}]}, {"time": "7:00–8:00", "items": [{"text": "Dinner", "icon": ""}, {"text": "Water", "icon": "water"}, {"text": "Perfectil Hair", "icon": "pill"}, {"text": "Fish oil", "icon": "pill"}]}, {"time": "8:00–8:30", "items": [{"text": "Shower", "icon": ""}, {"text": "Body: Rest night, moisturizer only", "icon": "body"}, {"text": "Floss", "icon": "oral"}, {"text": "Water floss", "icon": "oral"}, {"text": "Tongue scraper", "icon": "oral"}, {"text": "Brush teeth", "icon": "oral"}, {"text": "Mouthwash", "icon": "oral"}]}, {"time": "~9:30", "items": [{"text": "Magnesium", "icon": "pill"}, {"text": "Creatine, with water (skip if already had it in a shake or yogurt)", "icon": "pill"}]}, {"time": "~10:00", "items": [{"text": "Check tomorrow's to-do list + calendar", "icon": "plan"}]}, {"time": "~10:30", "items": [{"text": "Retinol", "icon": "skin"}]}, {"time": "10:30–11:00", "items": [{"text": "Reading", "icon": "read"}]}, {"time": "End of day", "nutrition": true, "items": []}, {"time": "11:00", "items": [{"text": "Bed", "icon": ""}]}]};
+
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const SHORT = {Monday:"Mon",Tuesday:"Tue",Wednesday:"Wed",Thursday:"Thu",Friday:"Fri",Saturday:"Sat",Sunday:"Sun"};
+
+let checkedState = {}; // { "Monday:3:1": true }
+let nutritionState = {}; // { "Monday": {calories, protein, fiber, water} }
+let currentDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+
+const tabsEl = document.getElementById('tabs');
+const listEl = document.getElementById('list');
+const progressFill = document.getElementById('progressFill');
+const dayCount = document.getElementById('dayCount');
+
+function itemKey(day, blockIdx, itemIdx){
+  return day + ':' + blockIdx + ':' + itemIdx;
+}
+
+function countTotals(day){
+  let total = 0, done = 0;
+  DATA[day].forEach((b, bi) => {
+    b.items.forEach((it, ii) => {
+      total++;
+      if(checkedState[itemKey(day,bi,ii)]) done++;
+    });
+  });
+  return {total, done};
+}
+
+function ringGradient(pct){
+  const deg = Math.round(pct * 360);
+  return `conic-gradient(var(--gold) 0deg ${deg}deg, #ece2e5 ${deg}deg 360deg)`;
+}
+
+function renderTabs(){
+  tabsEl.innerHTML = '';
+  DAYS.forEach(day => {
+    const {total, done} = countTotals(day);
+    const pct = total ? done/total : 0;
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (day === currentDay ? ' active' : '');
+    const ring = document.createElement('div');
+    ring.className = 'ring';
+    ring.style.background = pct >= 1
+      ? 'var(--gold)'
+      : ringGradient(pct);
+    tab.appendChild(ring);
+    const label = document.createElement('span');
+    label.textContent = SHORT[day];
+    tab.appendChild(label);
+    tab.onclick = () => { currentDay = day; renderAll(); };
+    tabsEl.appendChild(tab);
+  });
+}
+
+function iconClass(icon){
+  const map = { water:'icon-water', pill:'icon-pill', skin:'icon-skin', body:'icon-body', coffee:'icon-coffee', read:'icon-read', plan:'icon-plan', oral:'icon-oral' };
+  return map[icon] || '';
+}
+
+function renderNutritionCard(day){
+  const fields = [
+    { key:'calories', label:'Calories', unit:'kcal' },
+    { key:'protein', label:'Protein', unit:'g' },
+    { key:'fiber', label:'Fiber', unit:'g' },
+    { key:'water', label:'Water', unit:'ml' },
+    { key:'steps', label:'Steps', unit:'steps' },
+  ];
+  const card = document.createElement('div');
+  card.className = 'nutrition-card';
+
+  const title = document.createElement('div');
+  title.className = 'section-label';
+  title.style.padding = '0 0 8px';
+  title.textContent = 'Daily nutrition';
+  card.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.className = 'nutrition-grid';
+
+  const dayData = nutritionState[day] || {};
+
+  fields.forEach((f, fi) => {
+    const field = document.createElement('label');
+    field.className = 'nutrition-field' + (fi === fields.length - 1 ? ' full-span' : '');
+
+    const labelText = document.createElement('span');
+    labelText.className = 'nutrition-label';
+    labelText.textContent = f.label;
+    field.appendChild(labelText);
+
+    const inputWrap = document.createElement('div');
+    inputWrap.className = 'nutrition-input-wrap';
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '0';
+    input.inputMode = 'decimal';
+    input.placeholder = '0';
+    input.value = dayData[f.key] ?? '';
+    input.oninput = () => {
+      if(!nutritionState[day]) nutritionState[day] = {};
+      nutritionState[day][f.key] = input.value;
+      saveNutrition();
+    };
+    inputWrap.appendChild(input);
+
+    const unit = document.createElement('span');
+    unit.className = 'nutrition-unit';
+    unit.textContent = f.unit;
+    inputWrap.appendChild(unit);
+
+    field.appendChild(inputWrap);
+    grid.appendChild(field);
+  });
+
+  card.appendChild(grid);
+  return card;
+}
+
+function renderList(){
+  listEl.innerHTML = '';
+  DATA[currentDay].forEach((block, bi) => {
+    const row = document.createElement('div');
+    row.className = 'block';
+
+    const timeCol = document.createElement('div');
+    timeCol.className = 'time-col';
+    timeCol.textContent = block.time;
+    row.appendChild(timeCol);
+
+    const rail = document.createElement('div');
+    rail.className = 'rail';
+    const dot = document.createElement('div');
+    dot.className = 'rail-dot';
+    rail.appendChild(dot);
+    row.appendChild(rail);
+
+    const itemsCol = document.createElement('div');
+    itemsCol.className = 'items';
+
+    if(block.nutrition){
+      itemsCol.appendChild(renderNutritionCard(currentDay));
+      row.appendChild(itemsCol);
+      listEl.appendChild(row);
+      return;
+    }
+
+    const sectionLabels = { skin: 'Skincare', body: 'Body care', pill: 'Supplements', plan: 'Planning', oral: 'Oral care' };
+    let lastIcon = null;
+    block.items.forEach((it, ii) => {
+      if(sectionLabels[it.icon] && it.icon !== lastIcon){
+        const label = document.createElement('div');
+        label.className = 'section-label';
+        label.textContent = sectionLabels[it.icon];
+        itemsCol.appendChild(label);
+      }
+      lastIcon = it.icon;
+
+      const key = itemKey(currentDay, bi, ii);
+      const isDone = !!checkedState[key];
+      const itemEl = document.createElement('div');
+      itemEl.className = 'item' + (isDone ? ' done' : '');
+
+      const box = document.createElement('div');
+      box.className = 'box';
+      box.innerHTML = '<svg viewBox="0 0 12 12" fill="none"><path d="M2 6.2L4.7 9L10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      itemEl.appendChild(box);
+
+      const text = document.createElement('div');
+      text.className = 'item-text';
+      const tag = it.icon ? `<span class="icon-tag ${iconClass(it.icon)}"></span>` : '';
+      text.innerHTML = tag + it.text;
+      itemEl.appendChild(text);
+
+      itemEl.onclick = () => {
+        checkedState[key] = !checkedState[key];
+        saveState();
+        renderAll();
+      };
+
+      itemsCol.appendChild(itemEl);
+    });
+
+    row.appendChild(itemsCol);
+    listEl.appendChild(row);
+  });
+}
+
+function renderProgress(){
+  const {total, done} = countTotals(currentDay);
+  const pct = total ? (done/total)*100 : 0;
+  progressFill.style.width = pct + '%';
+  dayCount.textContent = `${currentDay} — ${done} of ${total} done`;
+}
+
+function renderAll(){
+  renderTabs();
+  renderList();
+  renderProgress();
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('checklist-state');
+    if(raw) checkedState = JSON.parse(raw);
+  }catch(e){ checkedState = {}; }
+  try{
+    const raw2 = localStorage.getItem('nutrition-state');
+    if(raw2) nutritionState = JSON.parse(raw2);
+  }catch(e){ nutritionState = {}; }
+
+  const diag = document.getElementById('storageDiag');
+  if(diag){
+    diag.textContent = testLocalStorage()
+      ? 'On-device storage: working'
+      : 'On-device storage: unavailable in this view — open from your Home Screen icon instead';
+  }
+
+  renderAll();
+}
+
+function testLocalStorage(){
+  try{
+    localStorage.setItem('__probe__', '1');
+    localStorage.removeItem('__probe__');
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function saveWithRetry(key, value){
+  try{
+    localStorage.setItem(key, value);
+    showSavedIndicator();
+    return true;
+  }catch(e){
+    console.error('localStorage save failed', e);
+    showSaveWarning();
+    return false;
+  }
+}
+
+function showSavedIndicator(){
+  let ind = document.getElementById('savedIndicator');
+  if(!ind){
+    ind = document.createElement('div');
+    ind.id = 'savedIndicator';
+    ind.textContent = 'Saved';
+    ind.style.cssText = 'position:fixed;left:0;right:0;bottom:0;background:#6f9d8f;color:#fff;font-family:Inter,sans-serif;font-size:12.5px;text-align:center;padding:7px;z-index:999;opacity:0;transition:opacity .2s ease;pointer-events:none;';
+    document.body.appendChild(ind);
+  }
+  ind.style.display = 'block';
+  ind.style.opacity = '1';
+  clearTimeout(ind._hideTimer);
+  ind._hideTimer = setTimeout(() => { ind.style.opacity = '0'; }, 1200);
+}
+
+function showSaveWarning(){
+  let warn = document.getElementById('saveWarning');
+  if(!warn){
+    warn = document.createElement('div');
+    warn.id = 'saveWarning';
+    warn.textContent = "Couldn't save — check your connection and try again.";
+    warn.style.cssText = 'position:fixed;left:0;right:0;bottom:0;background:#a8687a;color:#fff;font-family:Inter,sans-serif;font-size:13px;text-align:center;padding:10px;z-index:999;';
+    document.body.appendChild(warn);
+  }
+  warn.style.display = 'block';
+  clearTimeout(warn._hideTimer);
+  warn._hideTimer = setTimeout(() => { warn.style.display = 'none'; }, 4000);
+}
+
+function saveState(){
+  saveWithRetry('checklist-state', JSON.stringify(checkedState));
+}
+
+function saveNutrition(){
+  saveWithRetry('nutrition-state', JSON.stringify(nutritionState));
+}
+
+document.getElementById('resetBtn').onclick = () => {
+  DATA[currentDay].forEach((b, bi) => {
+    b.items.forEach((it, ii) => {
+      delete checkedState[itemKey(currentDay,bi,ii)];
+    });
+  });
+  delete nutritionState[currentDay];
+  saveState();
+  saveNutrition();
+  renderAll();
+};
+
+document.getElementById('resetWeekBtn').onclick = () => {
+  checkedState = {};
+  nutritionState = {};
+  saveState();
+  saveNutrition();
+  renderAll();
+};
+
+loadState();
+</script>
+</body>
+</html>
