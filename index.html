@@ -392,6 +392,7 @@
     font-family:'IBM Plex Mono', monospace;
   }
   .heatmap-legend .heatmap-cell{ width:11px; height:11px; aspect-ratio:unset; }
+  .heatmap-cell.future{ opacity:0.4; }
 
   .nutrient-table{
     width:100%;
@@ -529,6 +530,8 @@
       </div>
       <button class="reset-btn" id="logDateSaveBtn" style="width:100%;margin-top:8px;">Save entry</button>
     </div>
+
+    <button class="reset-btn" id="clearHistoryBtn" style="width:100%;margin-top:16px;">Clear history</button>
   </div>
 
   <div class="reset-row">
@@ -551,6 +554,7 @@ const SHORT = {Monday:"Mon",Tuesday:"Tue",Wednesday:"Wed",Thursday:"Thu",Friday:
 let checkedState = {}; // { "Monday:3:1": true }
 let nutritionState = {}; // { "Monday": {calories, protein, fiber, water} }
 let historyState = {}; // { "2026-09-20": {weekday:"Monday", done:8, total:11} }
+const HEATMAP_WEEKS = 6;
 let currentDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 
 function actualWeekday(){
@@ -886,13 +890,16 @@ function renderHistory(){
   const grid = document.getElementById('heatmapGrid');
   grid.innerHTML = '';
 
-  // Build the last 35 days (5 full weeks), oldest first, aligned Mon-Sun.
+  // Build exactly 6 full weeks (Mon-Sun), no partial row: start at the Monday
+  // 5 weeks ago, end at the Sunday of this week. Days after today within the
+  // current week render as blank "future" cells.
   const today = new Date();
   today.setHours(0,0,0,0);
   const todayDow = today.getDay() === 0 ? 6 : today.getDay() - 1; // 0=Mon
-  const daysBack = todayDow + 7 * 4; // pad to full weeks ending today
-  const start = new Date(today);
-  start.setDate(start.getDate() - daysBack);
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(endOfWeek.getDate() + (6 - todayDow));
+  const start = new Date(endOfWeek);
+  start.setDate(start.getDate() - (HEATMAP_WEEKS * 7 - 1));
 
   const dowLabels = ['M','T','W','T','F','S','S'];
   dowLabels.forEach(l => {
@@ -903,22 +910,24 @@ function renderHistory(){
   });
 
   const cursor = new Date(start);
-  const last7 = [];
-  while(cursor <= today){
+  while(cursor <= endOfWeek){
     const y = cursor.getFullYear();
     const m = String(cursor.getMonth()+1).padStart(2,'0');
     const d = String(cursor.getDate()).padStart(2,'0');
     const iso = `${y}-${m}-${d}`;
+    const isFuture = cursor > today;
     const entry = historyState[iso];
     const cell = document.createElement('div');
-    cell.className = 'heatmap-cell';
-    cell.dataset.level = dayLevel(entry);
+    cell.className = 'heatmap-cell' + (isFuture ? ' future' : '');
+    cell.dataset.level = isFuture ? 0 : dayLevel(entry);
     if(iso === todayISO()) cell.classList.add('today');
-    const titleBits = [];
-    if(entry && entry.total) titleBits.push(`${entry.done}/${entry.total} done`);
-    if(entry && entry.calories) titleBits.push(`${entry.calories} kcal`);
-    if(entry && entry.water) titleBits.push(`${entry.water} ml water`);
-    cell.title = titleBits.length ? `${iso}: ${titleBits.join(', ')}` : iso;
+    if(!isFuture){
+      const titleBits = [];
+      if(entry && entry.total) titleBits.push(`${entry.done}/${entry.total} done`);
+      if(entry && entry.calories) titleBits.push(`${entry.calories} kcal`);
+      if(entry && entry.water) titleBits.push(`${entry.water} ml water`);
+      cell.title = titleBits.length ? `${iso}: ${titleBits.join(', ')}` : iso;
+    }
     grid.appendChild(cell);
     cursor.setDate(cursor.getDate() + 1);
   }
@@ -1053,6 +1062,14 @@ document.getElementById('logDateSaveBtn').onclick = () => {
   });
   saveWithRetry('history-state', JSON.stringify(historyState));
   renderHistory();
+};
+
+document.getElementById('clearHistoryBtn').onclick = () => {
+  if(!confirm('Clear all streak and nutrition history? This cannot be undone.')) return;
+  historyState = {};
+  saveWithRetry('history-state', JSON.stringify(historyState));
+  renderHistory();
+  loadLogDateFields();
 };
 
 document.getElementById('resetBtn').onclick = () => {
